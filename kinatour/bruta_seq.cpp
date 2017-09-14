@@ -23,6 +23,7 @@ int main(int argc, char const *argv[]) {
   int board [SIZEF][SIZEF];
   int size,count;
   Position *p;
+  p = (Position *) malloc(sizeof(Position));
   cin >> size;
   p->x = 0;
   p->y = 0;
