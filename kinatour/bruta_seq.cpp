@@ -12,11 +12,11 @@ using namespace std;
 void walk(Position *p,int &board,int size){
   //https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
   random_device rd;
-  mt19937 gen(rd());
+  mt19937_64 gen(rd());
   //http://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
   uniform_int_distribution<int> uni(0,100);
-  auto random = uni(gen);
-  cout << random+"\n";
+  int random = uni(gen);
+  cout << random<<"\n";
 }
 
 int main(int argc, char const *argv[]) {
