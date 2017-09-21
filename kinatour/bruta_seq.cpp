@@ -19,6 +19,7 @@ int walk(Position *p,int (&board)[SIZEF][SIZEF],int size){
   // cout << uni(gen)<<"\n";
   double random = uni(gen);
   int pass = 0;
+  // printf("[%i],[%i]\n",p->x,p->y);
   while(1){
     random = fmod(random,100);
     // cout << board[1][2]<<" BOARD[1][2]\n";
@@ -121,26 +122,26 @@ int walk(Position *p,int (&board)[SIZEF][SIZEF],int size){
 int main(int argc, char const *argv[]) {
   int size,count,end;
   int flag = 0, iter = 0;
-  int i, j;
+  int i;
   // vector<Position> p;
+  Position *p;
+  p = (Position *) malloc(sizeof(Position));
   cin >> size;
+
   while (1) {
-    printf("iter %i\n",iter );
+    // printf("iter %i\n",iter );
     iter++;
-    Position *p;
-    p = (Position *) malloc(sizeof(Position));
     int board [SIZEF][SIZEF] = {0};
     board[0][0] = 1;
     count = 2;
-    for (i = 0; i < size; i++){
-      for (j = 0;j < size; j++){
+    for (i = 0; i < size*size; i++){
         end = walk(p,board,size);
         if (end == 1) {
           flag = 0;
           // cout << "entrou no end" << '\n';
-          for (i = 0; i < count; i++) {
-            for (j = 0; j < count; j++) {
-              if (board[i][j] == 0) {
+          for (int i2 = 0; i2 < size; i2++) {
+            for (int j2 = 0; j2 < size; j2++) {
+              if (board[i2][j2] == 0) {
                 flag++;
               }
             }
@@ -156,11 +157,11 @@ int main(int argc, char const *argv[]) {
         count++;
       }
       if(flag != 0){
-        free(p);
+        p->x=0;
+        p->y=0;
         // printf("free p!\n" );
-        break;
+        // break;
       }
-    }
   }
   return 0;
 }
