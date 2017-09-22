@@ -10,7 +10,7 @@ struct Position{
 
 using namespace std;
 
-int walk(Position *p,int (&board)[SIZEF][SIZEF],int size){
+int walk(Position *p,int board[SIZEF][SIZEF],int size){
   //https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
   random_device rd;
   mt19937_64 gen(rd());
@@ -119,17 +119,23 @@ int walk(Position *p,int (&board)[SIZEF][SIZEF],int size){
 
 }
 
+void printBoard(int board[SIZEF][SIZEF], int size){
+  for (int i = 0; i < size; ++i){
+    for (int j = 0; j < size; ++j)
+      cout << board[i][j] << "\t";
+    cout << "\n\n";
+  }
+}
+
 int main(int argc, char const *argv[]) {
   int size,count,end;
   int flag = 0, iter = 0;
   int i;
-  // vector<Position> p;
   Position *p;
   p = (Position *) malloc(sizeof(Position));
   cin >> size;
 
   while (1) {
-    // printf("iter %i\n",iter );
     iter++;
     int board [SIZEF][SIZEF] = {0};
     board[0][0] = 1;
@@ -138,7 +144,6 @@ int main(int argc, char const *argv[]) {
         end = walk(p,board,size);
         if (end == 1) {
           flag = 0;
-          // cout << "entrou no end" << '\n';
           for (int i2 = 0; i2 < size; i2++) {
             for (int j2 = 0; j2 < size; j2++) {
               if (board[i2][j2] == 0) {
@@ -148,6 +153,7 @@ int main(int argc, char const *argv[]) {
           }
           if (flag == 0) {
             cout << "random is good!" << '\n';
+            printBoard(board, size);
             return 0;
           }
           cout << "random is mean" << '\n';
@@ -159,8 +165,6 @@ int main(int argc, char const *argv[]) {
       if(flag != 0){
         p->x=0;
         p->y=0;
-        // printf("free p!\n" );
-        // break;
       }
   }
   return 0;
