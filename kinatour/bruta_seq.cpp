@@ -152,11 +152,11 @@ int main(int argc, char const *argv[]) {
             }
           }
           if (flag == 0) {
-            cout << "random is good!" << '\n';
+            cout << "random is good! Iteration:"<< iter << '\n';
             printBoard(board, size);
             return 0;
           }
-          cout << "random is mean" << '\n';
+          // cout << "random is mean" << '\n';
           break;
         }
         board[p->x][p->y] = count;
