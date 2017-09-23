@@ -73,22 +73,22 @@ void populate(vector<Info> &p, int threads){
 	}
 }	
 
-bool Valid(Info *p, int i){
-  int x = (p->x) + iPasso[i];
-  int y = (p->y) + jPasso[i]; 
+bool Valid(Info p, int i){
+  int x = (p.x) + iPasso[i];
+  int y = (p.y) + jPasso[i]; 
 
-  if( x >= 0 && x < size && y >= 0 && y < size && p->board[x][y] == 0 )
+  if( x >= 0 && x < size && y >= 0 && y < size && p.board[x][y] == 0 )
     return true;
   return false;
 }
 
-void SaveMove(Info *p, int i){
-  p->x+=iPasso[i];
-  p->y+=jPasso[i];
+void SaveMove(Info p, int i){
+  p.x+=iPasso[i];
+  p.y+=jPasso[i];
 }
 
 
-int walk(Info *p){
+int walk(Info p){
 	double random = Random(99.9);
 	int pass = 0;
 
@@ -157,11 +157,11 @@ int walk(Info *p){
 	}
 }
 
-int Tour(Info *p){
-	int flag = 0, iter = 0;
-	
+int Tour(Info p){
+	int flag = 0, iter = 0,
+			x0 = p.x, y0 = p.y;
 	while (1) {
-		InitMatrix(p->board, p->x, p->y);
+		InitMatrix(p.board, x0, y0);
 		
 		int count = 2;
 		for (int k = 0; k < size*size; k++){
@@ -172,26 +172,26 @@ int Tour(Info *p){
 				
 				for (int i = 0; i < size; i++) {
 					for (int j = 0; j < size; j++) {
-						if (p->board[i][j] == 0) 
+						if (p.board[i][j] == 0) 
 							flag++;
 					}
 				}
 
 				if (flag == 0) {
 					cout << "random is good! Iteration:"<< iter << '\n';
-					PrintBoard(p->board);
+					PrintBoard(p.board);
 					return 0;
 				}
 				break;
 			}
 			
-			p->board[p->x][p->y] = count;
+			p.board[p.x][p.y] = count;
 			count++;
 		}
 
 		if(flag != 0){
-			p->x=0;
-			p->y=0;
+			p.x=x0;
+			p.y=y0;
 		}
 		iter++;
 	}
@@ -207,20 +207,18 @@ int main(int argc, char const *argv[]){
 	vector<Info> p;
 	populate(p,nthreads);
 
-	// for (unsigned int i = 0; i < p->size(); i++) {
+	// for (unsigned int i = 0; i < p.size(); i++) {
 	//     cout << i << ": x=" << p[i].x << ", y=" << p[i].y << '\n';
  	//    	PrintBoard(p[i].board);
 	// }
 
-	thread threads[nthreads];
-    for (int i = 0; i < nthreads; i++) 
-        threads[i] = thread(Tour, p[i]);
+	thread t[nthreads];
+  for (int i = 0; i < nthreads; i++) 
+      t[i] = thread(Tour, p[i]);
 
-    for (auto& th : threads) {
-        th.join();
-    }
-
-
+  for (int i = 0; i < nthreads; i++) {
+    t[i].join();
+  }
 
 	return 0;
 }
