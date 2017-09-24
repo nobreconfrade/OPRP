@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <thread>
+#include <chrono> 
 
 using std::cout;
 using std::cin;
@@ -11,6 +12,7 @@ using std::vector;
 using std::thread;
 
 #define SIZEF 500
+#define MAX 1000
 
 typedef struct Info{
 	int board[SIZEF][SIZEF];
@@ -42,6 +44,9 @@ void InitMatrix(Info &p, int x, int y){
 }
 
 void PrintBoard(int board[SIZEF][SIZEF]){
+	std::thread::id Tid = std::this_thread::get_id();
+	cout << "\nId thread : " << Tid;
+	cout << "\n";
 	for (int i = 0; i < size; ++i){
 		for (int j = 0; j < size; ++j)
 			cout << board[i][j] << "\t";
@@ -159,10 +164,12 @@ int walk(Info &p){
 	}
 }
 
-void Tour(Info p){
+int Tour(Info &p){
 	int flag = 0, iter = 0,
 			x0 = p.x, y0 = p.y;
-	while (1) {
+
+	// while (1) {
+	while(iter < MAX){
 		InitMatrix(p, x0, y0);
 
 		int count = 2;
@@ -180,9 +187,9 @@ void Tour(Info p){
 				}
 
 				if (flag == 0) {
-					cout << "random is good! Iteration:"<< iter << '\n';
-					PrintBoard(p.board);
-				  return;
+					cout << "\nrandom is good! Iteration:"<< iter;
+					
+				  return 1;
 				}
 				break;
 			}
@@ -197,7 +204,17 @@ void Tour(Info p){
 		}
 		iter++;
 	}
+	return 0;
 }
+
+int KnightsTour(Info p){
+	if (Tour(p)){
+		PrintBoard(p.board);
+	} else
+		cout << "não foi dessa vez\n";
+	return 0;
+}
+
 
 int main(int argc, char const *argv[]){
 
@@ -216,11 +233,17 @@ int main(int argc, char const *argv[]){
 
 	thread t[nthreads];
   for (int i = 0; i < nthreads; i++)
-      t[i] = thread(Tour, p[i]);
-	cout << "Threads em execução" << '\n';
+      t[i] = thread(KnightsTour, p[i]);
+
+	cout << "\nThreads em execução\n";
+  
   for (int i = 0; i < nthreads; i++) {
-		// cout << "Opa" << '\n';
-    t[i].join();
+    // cout << "thread[" << i << "]\n";
+    // if (t[i].joinable()){
+    	t[i].join();
+    	// break;}
+
   }
+  
 	return 0;
 }
