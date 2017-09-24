@@ -2,12 +2,12 @@
 #include <random>
 #include <thread>
 
-using std::cout; 
-using std::cin; 
+using std::cout;
+using std::cin;
 using std::random_device;
 using std::mt19937_64;
 using std::uniform_real_distribution;
-using std::vector; 
+using std::vector;
 using std::thread;
 
 #define SIZEF 500
@@ -20,8 +20,8 @@ typedef struct Info{
 
 int size;
 
-int iPasso[8] = { -2, -1,  1,  2,  2,  1, -1, -2 };
-int jPasso[8] = {  1,  2,  2,  1, -1, -2, -2, -1 };
+static const int iPasso[8] = { -2, -1,  1,  2,  2,  1, -1, -2 };
+static const int jPasso[8] = {  1,  2,  2,  1, -1, -2, -2, -1 };
 
 double Random(int n){
 	//https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
@@ -32,13 +32,13 @@ double Random(int n){
 	return uni(gen);
 }
 
-void InitMatrix(int matrix[SIZEF][SIZEF], int x, int y){
+void InitMatrix(Info &p, int x, int y){
 	for (int i = 0; i < size; ++i){
 		for (int j = 0; j < size; ++j){
-			matrix[i][j] = 0; 
+			p.board[i][j] = 0;
 		}
 	}
-	matrix[x][y] = 1;
+	p.board[x][y] = 1;
 }
 
 void PrintBoard(int board[SIZEF][SIZEF]){
@@ -57,7 +57,6 @@ void populate(vector<Info> &p, int threads){
 		Info tmp;
 		tmp.x = Random(size-1);
 		tmp.y = Random(size-1);
-		InitMatrix(tmp.board, tmp.x, tmp.y);
 
 		for (unsigned int i = 0; i < p.size(); i++) {
 			if (p[i].x == tmp.x && p[i].y == tmp.y) {
@@ -67,32 +66,35 @@ void populate(vector<Info> &p, int threads){
 		}
 
 		if (flag) {
+			InitMatrix(tmp, tmp.x, tmp.y);
 			p.push_back(tmp);
 			count ++;
 		}
 	}
-}	
+}
 
 bool Valid(Info p, int i){
   int x = (p.x) + iPasso[i];
-  int y = (p.y) + jPasso[i]; 
+  int y = (p.y) + jPasso[i];
 
   if( x >= 0 && x < size && y >= 0 && y < size && p.board[x][y] == 0 )
     return true;
   return false;
 }
 
-void SaveMove(Info p, int i){
+void SaveMove(Info &p, int i){
+	// cout << "PRIMEIRO:"<<p.x << '\n';
   p.x+=iPasso[i];
+	// cout << "segundo:"<<p.x << '\n';
   p.y+=jPasso[i];
 }
 
-
-int walk(Info p){
+int walk(Info &p){
 	double random = Random(99.9);
 	int pass = 0;
 
 	while(1){
+		// PrintBoard(p.board);
 		random = fmod(random,100);
 		if (0 <= random && random < 12.5) { // move 1
 			if(Valid(p, 0)) {
@@ -152,27 +154,27 @@ int walk(Info p){
 		}
 
 		random+=12.5;
-		if (pass == 8) 
+		if (pass == 8)
 			return 1;
 	}
 }
 
-int Tour(Info p){
+void Tour(Info p){
 	int flag = 0, iter = 0,
 			x0 = p.x, y0 = p.y;
 	while (1) {
-		InitMatrix(p.board, x0, y0);
-		
+		InitMatrix(p, x0, y0);
+
 		int count = 2;
 		for (int k = 0; k < size*size; k++){
 			int end = walk(p);
-			
+
 			if (end == 1) {
 				flag = 0;
-				
+
 				for (int i = 0; i < size; i++) {
 					for (int j = 0; j < size; j++) {
-						if (p.board[i][j] == 0) 
+						if (p.board[i][j] == 0)
 							flag++;
 					}
 				}
@@ -180,11 +182,11 @@ int Tour(Info p){
 				if (flag == 0) {
 					cout << "random is good! Iteration:"<< iter << '\n';
 					PrintBoard(p.board);
-					return 0;
+				  return;
 				}
 				break;
 			}
-			
+
 			p.board[p.x][p.y] = count;
 			count++;
 		}
@@ -198,7 +200,7 @@ int Tour(Info p){
 }
 
 int main(int argc, char const *argv[]){
-	
+
 	cin >> size;
 
 	int nthreads;
@@ -207,18 +209,18 @@ int main(int argc, char const *argv[]){
 	vector<Info> p;
 	populate(p,nthreads);
 
-	// for (unsigned int i = 0; i < p.size(); i++) {
-	//     cout << i << ": x=" << p[i].x << ", y=" << p[i].y << '\n';
- 	//    	PrintBoard(p[i].board);
-	// }
+	for (unsigned int i = 0; i < p.size(); i++) {
+	    cout << i << ": x=" << p[i].x << ", y=" << p[i].y << '\n';
+			//   	PrintBoard(p[i].board);
+	}
 
 	thread t[nthreads];
-  for (int i = 0; i < nthreads; i++) 
+  for (int i = 0; i < nthreads; i++)
       t[i] = thread(Tour, p[i]);
-
+	cout << "Threads em execução" << '\n';
   for (int i = 0; i < nthreads; i++) {
+		// cout << "Opa" << '\n';
     t[i].join();
   }
-
 	return 0;
 }
