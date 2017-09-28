@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 #include <thread>
-#include <chrono> 
+#include <chrono>
 
 using std::cout;
 using std::cin;
@@ -12,7 +12,7 @@ using std::vector;
 using std::thread;
 
 #define SIZEF 500
-#define MAX 1000
+#define MAX 1000000
 
 typedef struct Info{
 	int board[SIZEF][SIZEF];
@@ -188,7 +188,7 @@ int Tour(Info &p){
 
 				if (flag == 0) {
 					cout << "\nrandom is good! Iteration:"<< iter;
-					
+
 				  return 1;
 				}
 				break;
@@ -217,9 +217,10 @@ int KnightsTour(Info p){
 
 
 int main(int argc, char const *argv[]){
-
+	cout << "Insira o tamanho do tabuleiro:" << '\n';
 	cin >> size;
 
+	cout << "Insira o numero de threads:" << '\n';
 	int nthreads;
 	cin >> nthreads;
 
@@ -236,7 +237,7 @@ int main(int argc, char const *argv[]){
       t[i] = thread(KnightsTour, p[i]);
 
 	cout << "\nThreads em execução\n";
-  
+
   for (int i = 0; i < nthreads; i++) {
     // cout << "thread[" << i << "]\n";
     // if (t[i].joinable()){
@@ -244,6 +245,6 @@ int main(int argc, char const *argv[]){
     	// break;}
 
   }
-  
+
 	return 0;
 }
