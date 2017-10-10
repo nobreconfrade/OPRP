@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-void bubble_sort(int *, unsigned long);
+void bubble_sort(int *, unsigned long,int);
 void imprimir_vetor(int *, unsigned long);
 
 int main(int argc, char *argv[])
@@ -12,13 +12,15 @@ int main(int argc, char *argv[])
 
 	int *vetor = NULL;
 	unsigned long tam, i = 0;
+	int num_thread;
 
-	if (argc != 2) {
+	if (argc != 3) {
 		printf("%s elementos\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
 	tam = atoi(argv[1]);
+	num_thread = atoi(argv[2]);
 
 	if (!(vetor = (int *) malloc(sizeof(int) * tam))) {
 		printf("Erro ao alocar memória\n");
@@ -33,7 +35,7 @@ int main(int argc, char *argv[])
 
 
 		gettimeofday(&timevalA, NULL);
-		bubble_sort(vetor, tam);
+		bubble_sort(vetor, tam,num_thread);
 		gettimeofday(&timevalB, NULL);
 		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
 		verify(vetor,tam);
@@ -58,17 +60,21 @@ void verify(int *vetor, unsigned long tam){
 }
 
 
-void bubble_sort(int *vetor, unsigned long tam)
+void bubble_sort(int *vetor, unsigned long tam, int num_thread)
 {
 	unsigned long i, j;
-	int aux;
-
-	for (i = tam; i > 0; i--) {
-		for (j = 0; j < i; j++) {
-			if (vetor[j] > vetor[j + 1]) {
-				aux = vetor[j];
-				vetor[j] = vetor[j + 1];
-				vetor[j + 1] = aux;
+	int aux,start;
+	#pragma omp parallel num_threads(num_thread) shared(i,vetor) private(aux,j)
+	{
+		for (i = tam; i > 0; i--) {
+			start = i % 2;
+			#pragma omp parallel for schedule(static)
+			for (j = start; j < i; j+=2) {
+				if (vetor[j] > vetor[j + 1]) {
+					aux = vetor[j];
+					vetor[j] = vetor[j + 1];
+					vetor[j + 1] = aux;
+				}
 			}
 		}
 	}
