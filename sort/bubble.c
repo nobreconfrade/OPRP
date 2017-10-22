@@ -4,6 +4,7 @@
 
 void bubble_sort(int *, unsigned long,int);
 void imprimir_vetor(int *, unsigned long);
+void verify(int *, unsigned long );
 
 int main(int argc, char *argv[])
 {
@@ -12,7 +13,7 @@ int main(int argc, char *argv[])
 
 	int *vetor = NULL;
 	unsigned long tam, i = 0;
-	int num_thread;
+	unsigned int num_thread;
 
 	if (argc != 3) {
 		printf("%s elementos\n", argv[0]);
@@ -64,17 +65,14 @@ void bubble_sort(int *vetor, unsigned long tam, int num_thread)
 {
 	unsigned long i, j;
 	int aux,start;
-	#pragma omp parallel num_threads(num_thread) shared(i,vetor) private(aux,j)
-	{
-		for (i = tam; i > 0; i--) {
-			start = i % 2;
-			#pragma omp parallel for schedule(static)
-			for (j = start; j < i; j+=2) {
-				if (vetor[j] > vetor[j + 1]) {
-					aux = vetor[j];
-					vetor[j] = vetor[j + 1];
-					vetor[j + 1] = aux;
-				}
+	for (i = tam; i > 0; i--) {
+		start = i % 2;
+		#pragma omp parallel for schedule(static) num_threads(num_thread) shared(i,vetor,start) private(aux,j)
+		for (j = start; j < tam - 1; j+=2){
+			if (vetor[j] > vetor[j + 1]) {
+				aux = vetor[j];
+				vetor[j] = vetor[j + 1];
+				vetor[j + 1] = aux;
 			}
 		}
 	}
