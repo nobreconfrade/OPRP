@@ -28,16 +28,17 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	srand(time(NULL));
 	for (int j = 0; j < 10; j++) {
-		srand(time(NULL));
 		for (i = 0; i < tam; i++) {
-			*(vetor + i) = random() % 10000;
+			*(vetor + i) = random() % 100000;
 		}
 
 
 		gettimeofday(&timevalA, NULL);
 		bubble_sort(vetor, tam,num_thread);
 		gettimeofday(&timevalB, NULL);
+		// imprimir_vetor(vetor,tam);
 		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
 		verify(vetor,tam);
 	}
