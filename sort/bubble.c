@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
 
 void bubble_sort(int *, unsigned long,int);
 void imprimir_vetor(int *, unsigned long);
