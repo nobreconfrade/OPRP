@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-
+#include <omp.h>
 void selection_sort(int *, unsigned long, unsigned int);
 void imprimir_vetor(int *, unsigned long);
 void verify(int *, unsigned long);
@@ -62,17 +62,29 @@ void verify(int *vetor, unsigned long tam){
 
 void selection_sort(int *vetor, unsigned long tam, unsigned int numThread)
 {
-	unsigned long i, j, min;
-	int aux;
+	unsigned long i, j, min, c;
+	int aux, *vetmin;
+
+	vetmin = (int *)malloc(sizeof(int) * numThread);
 
 	for (i = 0; i < tam - 1; i++) {
-		min = i;
-		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i,min) private(j) 
+		for (c = 0; c < numThread; ++c)
+			vetmin[c] = i;
+
+		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i, min, vetmin) private(j)
 		for (j = i + 1; j < tam; j++) {
-			if (vetor[j] < vetor[min]) {
-         			min = j;
+			if (vetor[j] < vetor[vetmin[omp_get_thread_num()]]) {
+        vetmin[omp_get_thread_num()] = j;
 			}
-     		}
+    }
+
+    int k = 0;
+    min = vetmin[k];
+    for (k = 1; k < numThread; ++k){
+    	if (vetor[min] > vetor[vetmin[k]])
+    		min = vetmin[k];
+    }
+
 		if (vetor[i] != vetor[min]) {
 			aux = vetor[i];
 			vetor[i] = vetor[min];
