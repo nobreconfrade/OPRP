@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 	int *vetor = NULL;
 	unsigned long tam, i = 0;
-	unsigned int num_thread;
+	unsigned int numThread;
 
 	if (argc != 3) {
 		printf("%s elementos\n", argv[0]);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	}
 
 	tam = atoi(argv[1]);
-	num_thread = atoi(argv[2]);
+	numThread = atoi(argv[2]);
 
 	if (!(vetor = (int *) malloc(sizeof(int) * tam))) {
 		printf("Erro ao alocar memória\n");
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
 
 		gettimeofday(&timevalA, NULL);
-		bubble_sort(vetor, tam,num_thread);
+		bubble_sort(vetor, tam,numThread);
 		gettimeofday(&timevalB, NULL);
 		// imprimir_vetor(vetor,tam);
 		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
@@ -63,13 +63,13 @@ void verify(int *vetor, unsigned long tam){
 }
 
 
-void bubble_sort(int *vetor, unsigned long tam, int num_thread)
+void bubble_sort(int *vetor, unsigned long tam, int numThread)
 {
 	unsigned long i, j;
 	int aux,start;
 	for (i = tam; i > 0; i--) {
 		start = i % 2;
-		#pragma omp parallel for schedule(static) num_threads(num_thread) shared(i,vetor,start) private(aux,j)
+		#pragma omp parallel for schedule(static) numThreads(numThread) shared(i,vetor,start) private(aux,j)
 		for (j = start; j < tam - 1; j+=2){
 			if (vetor[j] > vetor[j + 1]) {
 				aux = vetor[j];
