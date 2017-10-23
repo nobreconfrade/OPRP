@@ -67,6 +67,7 @@ void selection_sort(int *vetor, unsigned long tam, unsigned int numThread)
 
 	for (i = 0; i < tam - 1; i++) {
 		min = i;
+		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i,min) private(j) 
 		for (j = i + 1; j < tam; j++) {
 			if (vetor[j] < vetor[min]) {
          			min = j;
