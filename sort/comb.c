@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
 
 void comb_sort(int *, unsigned long);
 void imprimir_vetor(int *, unsigned long);
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 
 void comb_sort(int *vetor, unsigned long tam)
 {
-	unsigned long i, j;
+	unsigned long i;
 	int intervalo, trocado = 1;
 	int aux;
 	
@@ -62,13 +63,13 @@ void comb_sort(int *vetor, unsigned long tam)
 
 		trocado = 0;
 
-		for (i = 0, j = intervalo; j < tam; i++, j++)
+		for (i = 0; i + intervalo < tam; i++)
 		{
-			if (vetor[i] > vetor[j])
+			if (vetor[i] > vetor[i+intervalo])
 			{
 				aux = vetor[i];
-				vetor[i] = vetor[j];
-				vetor[j] = aux;
+				vetor[i] = vetor[i+intervalo];
+				vetor[i+intervalo] = aux;
 				trocado = 1;
 			}
 		}
