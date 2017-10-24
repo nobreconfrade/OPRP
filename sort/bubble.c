@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	unsigned int numThread;
 
 	if (argc != 3) {
-		printf("%s elementos\n", argv[0]);
+		printf("%s elementos e numero de threads\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	srand(time(NULL));
 	for (int j = 0; j < 10; j++) {
 		for (i = 0; i < tam; i++) {
-			*(vetor + i) = random() % 100000;
+			*(vetor + i) = random() % 10000;
 		}
 
 
