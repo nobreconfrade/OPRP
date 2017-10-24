@@ -71,7 +71,7 @@ void selection_sort(int *vetor, unsigned long tam, unsigned int numThread)
 		for (c = 0; c < numThread; ++c)
 			vetmin[c] = i;
 
-		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i, min, vetmin) private(j)
+		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i, min, vetmin,vetor) private(j)
 		for (j = i + 1; j < tam; j++) {
 			if (vetor[j] < vetor[vetmin[omp_get_thread_num()]]) {
         vetmin[omp_get_thread_num()] = j;

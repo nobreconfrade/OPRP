@@ -69,7 +69,7 @@ void bubble_sort(int *vetor, unsigned long tam, int numThread)
 	int aux,start;
 	for (i = tam; i > 0; i--) {
 		start = i % 2;
-		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i,vetor,start) private(aux,j)
+		#pragma omp parallel for schedule(static) num_threads(numThread) shared(i,vetor,start,tam) private(aux,j)
 		for (j = start; j < tam - 1; j+=2){
 			if (vetor[j] > vetor[j + 1]) {
 				aux = vetor[j];

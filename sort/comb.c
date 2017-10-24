@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
+#include <omp.h>
 
-void comb_sort(int *, unsigned long);
+void comb_sort(int *, unsigned long, unsigned int);
 void imprimir_vetor(int *, unsigned long);
+void verify(int *, unsigned long);
 
 int main(int argc, char *argv[])
 {
@@ -13,42 +15,46 @@ int main(int argc, char *argv[])
 
 	int *vetor = NULL;
 	unsigned long tam, i = 0;
+	unsigned int numThread;
 
-	if (argc != 2) {
-		printf("%s elementos\n", argv[0]);
+	if (argc != 3) {
+		printf("%s elementos e numero de threads\n", argv[0]);
 		exit(EXIT_FAILURE);
-	}	
-	
+	}
+
 	tam = atoi(argv[1]);
+	numThread = atoi(argv[2]);
 
 	if (!(vetor = (int *) malloc(sizeof(int) * tam))) {
 		printf("Erro ao alocar memória\n");
 		exit(EXIT_FAILURE);
 	}
 
-	srand(time(NULL));		
-	for (i = 0; i < tam; i++) {
-		*(vetor + i) = random() % 10000;
+	srand(time(NULL));
+	for (int j = 0; j < 10; j++) {
+		for (i = 0; i < tam; i++) {
+			*(vetor + i) = random() % 10000;
+		}
+
+
+		gettimeofday(&timevalA, NULL);
+		comb_sort(vetor, tam,numThread);
+		gettimeofday(&timevalB, NULL);
+		// imprimir_vetor(vetor,tam);
+		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
+		verify(vetor,tam);
 	}
-
-	gettimeofday(&timevalA, NULL);
-	comb_sort(vetor, tam);	
-	gettimeofday(&timevalB, NULL);
-
-	printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
-
-	//imprimir_vetor(vetor, tam);
 
 	free(vetor);
 	return EXIT_SUCCESS;
 }
 
-void comb_sort(int *vetor, unsigned long tam)
+void comb_sort(int *vetor, unsigned long tam,unsigned int numThread)
 {
-	unsigned long i;
+	unsigned int i;
 	int intervalo, trocado = 1;
 	int aux;
-	
+
 	intervalo = tam;
 
 	while (intervalo > 1 || trocado == 1)
@@ -60,10 +66,11 @@ void comb_sort(int *vetor, unsigned long tam)
 		if (intervalo < 1) {
 			intervalo = 1;
 		}
+		// printf("%d\n",intervalo );
 
 		trocado = 0;
-
-		for (i = 0; i + intervalo < tam; i++)
+		#pragma omp parallel for schedule(static) num_threads(numThread) shared(vetor,tam,intervalo,trocado) private(aux,i)
+		for (i = 0; i < tam - intervalo; i++)
 		{
 			if (vetor[i] > vetor[i+intervalo])
 			{
@@ -76,6 +83,19 @@ void comb_sort(int *vetor, unsigned long tam)
 	}
 
 }
+
+void verify(int *vetor, unsigned long tam){
+	int x;
+	x = vetor[0];
+	for (int i = 0; i < tam; i++) {
+		if (x > vetor[i]) {
+			printf("TA ERRADO MANO\n");
+			break;
+		}
+		x = vetor[i];
+	}
+}
+
 
 void imprimir_vetor(int *vetor, unsigned long tam)
 {
