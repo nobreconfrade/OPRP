@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ "$#" -ne 1 ]; then
-    echo "Falta parametro: <quantidade maxima de threads>"
+if [ "$#" -ne 2 ]; then
+    echo "Falta parametro: <quantidade maxima de threads> <elementos>"
     return
 fi
 
@@ -15,13 +15,17 @@ LINE="media   numThread    tam"
 echo $LINE >> resultados/"bubble.txt" 
 
 maxThreads=$1
+tam=$2
 # for tam in 10000; do
-tam=100000
 	for numThreads in $(seq 1 $maxThreads); do
+		echo "$numThreads"
+		echo "bubble rodando"
 		./bubble $tam $numThreads >> resultados/"bubble.txt"
+		echo "selection rodando"
 		./selection $tam $numThreads >> resultados/"selection.txt"
+		echo "comb rodando"
 		./comb $tam $numThreads >> resultados/"comb.txt"
-	done
+	# done
 done
 
 rm bubble selection comb
