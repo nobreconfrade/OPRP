@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	if (argc != 2) {
 		printf("%s elementos\n", argv[0]);
 		exit(EXIT_FAILURE);
-	}	
-	
+	}
+
 	tam = atoi(argv[1]);
 
 	if (!(vetor = (int *) malloc(sizeof(int) * tam))) {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	srand(time(NULL));		
+	srand(time(NULL));
 
 	int j;
 	double sum = 0;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 		}
 
 		gettimeofday(&timevalA, NULL);
-		selection_sort(vetor, tam);	
+		selection_sort(vetor, tam);
 		gettimeofday(&timevalB, NULL);
 
 		double t = timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 		// printf("%lf\n", t);
 	}
 
-	printf("%lf\n", sum/10.0);
+	printf("selection %lf\n", sum/10.0);
 
 	free(vetor);
 	return EXIT_SUCCESS;
@@ -54,11 +54,11 @@ void selection_sort(int *vetor, unsigned long tam)
 {
 	unsigned long i, j, min;
 	int aux;
-	
+
 	for (i = 0; i < tam - 1; i++) {
 		min = i;
 		for (j = i + 1; j < tam; j++) {
-			if (vetor[j] < vetor[min]) { 
+			if (vetor[j] < vetor[min]) {
          			min = j;
 			}
      		}

@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	if (argc != 2) {
 		printf("%s elementos\n", argv[0]);
 		exit(EXIT_FAILURE);
-	}	
-	
+	}
+
 	tam = atoi(argv[1]);
 
 	if (!(vetor = (int *) malloc(sizeof(int) * tam))) {
@@ -26,17 +26,17 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	srand(time(NULL));		
+	srand(time(NULL));
 	int j;
 	double sum = 0;
-	
+
 	for (j = 0; j < 10; ++j){
 		for (i = 0; i < tam; i++) {
 			*(vetor + i) = random() % 10000;
 		}
 
 		gettimeofday(&timevalA, NULL);
-		comb_sort(vetor, tam);	
+		comb_sort(vetor, tam);
 		gettimeofday(&timevalB, NULL);
 
 		double t = timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 		// printf("%lf\n", t);
 	}
 
-	printf("%lf\n", sum/10.0);
+	printf("comb %lf\n", sum/10.0);
 
 	free(vetor);
 	return EXIT_SUCCESS;
@@ -55,7 +55,7 @@ void comb_sort(int *vetor, unsigned long tam)
 	unsigned long i, j;
 	int intervalo, trocado = 1;
 	int aux;
-	
+
 	intervalo = tam;
 
 	while (intervalo > 1 || trocado == 1)
