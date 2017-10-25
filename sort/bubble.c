@@ -29,39 +29,28 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	double sum = 0.0;
+
 	srand(time(NULL));
 	for (int j = 0; j < 10; j++) {
 		for (i = 0; i < tam; i++) {
 			*(vetor + i) = random() % 10000;
 		}
 
-
 		gettimeofday(&timevalA, NULL);
 		bubble_sort(vetor, tam,numThread);
 		gettimeofday(&timevalB, NULL);
-		// imprimir_vetor(vetor,tam);
-		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
+		double t = timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000;
+		sum += t;
+		printf("%lf\n", t);
 		verify(vetor,tam);
 	}
 
-	// vetor[59999] = ;
-	// imprimir_vetor(vetor, tam);
+	printf("#\t%lf\t%u\t%lu\n", sum/10.0, numThread, tam);
+
 	free(vetor);
 	return EXIT_SUCCESS;
 }
-
-void verify(int *vetor, unsigned long tam){
-	int x;
-	x = vetor[0];
-	for (int i = 0; i < tam; i++) {
-		if (x > vetor[i]) {
-			printf("TA ERRADO MANO\n");
-			break;
-		}
-		x = vetor[i];
-	}
-}
-
 
 void bubble_sort(int *vetor, unsigned long tam, int numThread)
 {
@@ -87,4 +76,13 @@ void imprimir_vetor(int *vetor, unsigned long tam)
 		printf("%d\t", vetor[i]);
 	}
 	printf("\n");
+}
+
+void verify(int *vetor, unsigned long tam){
+	for (int i = 0; i < tam - 1; i++) {
+		if (vetor[i] > vetor[i+1]) {
+			printf("TA ERRADO MANO\n");
+			break;
+		}
+	}
 }

@@ -30,20 +30,23 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	double sum = 0.0;
+
 	srand(time(NULL));
 	for (int j = 0; j < 10; j++) {
 		for (i = 0; i < tam; i++) {
 			*(vetor + i) = random() % 10000;
 		}
 
-
 		gettimeofday(&timevalA, NULL);
 		comb_sort(vetor, tam,numThread);
 		gettimeofday(&timevalB, NULL);
-		// imprimir_vetor(vetor,tam);
-		printf("%lf\n", timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000);
 		verify(vetor,tam);
+		double t = timevalB.tv_sec - timevalA.tv_sec + (timevalB.tv_usec - timevalA.tv_usec) / (double) 1000000;
+		sum += t;
+		printf("%lf\n", t);
 	}
+	printf("#\t%lf\t%u\t%lu\n", sum/10.0, numThread, tam);
 
 	free(vetor);
 	return EXIT_SUCCESS;
@@ -66,7 +69,6 @@ void comb_sort(int *vetor, unsigned long tam,unsigned int numThread)
 		if (intervalo < 1) {
 			intervalo = 1;
 		}
-		// printf("%d\n",intervalo );
 
 		trocado = 0;
 		#pragma omp parallel for schedule(static) num_threads(numThread) shared(vetor,tam,intervalo,trocado) private(aux,i)
@@ -85,17 +87,13 @@ void comb_sort(int *vetor, unsigned long tam,unsigned int numThread)
 }
 
 void verify(int *vetor, unsigned long tam){
-	int x;
-	x = vetor[0];
-	for (int i = 0; i < tam; i++) {
-		if (x > vetor[i]) {
+	for (int i = 0; i < tam - 1; i++) {
+		if (vetor[i] > vetor[i+1]) {
 			printf("TA ERRADO MANO\n");
 			break;
 		}
-		x = vetor[i];
 	}
 }
-
 
 void imprimir_vetor(int *vetor, unsigned long tam)
 {
