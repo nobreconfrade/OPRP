@@ -11,8 +11,8 @@ gcc -Wall comb.c      -fopenmp -o comb
 
 mkdir -p resultados
 
-LINE="media   numThread    tam"
-echo $LINE >> resultados/"bubble.txt" 
+# LINE="media   numThread    tam"
+# echo $LINE >> resultados/"bubble.txt" 
 
 maxThreads=$1
 tam=$2
@@ -31,7 +31,6 @@ done
 rm bubble selection comb
 
 # depois pegar as medias e jogar no arquivo resultados.txt
-mkdir -p plots/mediasBubble.csv
-mkdir -p plots/mediasSelection.csv
-mkdir -p plots/mediasComb.csv
-mkdir -p plots/medias.csv
+touch plots/"mediasBubble_$tam".csv 
+touch plots/"mediasSelection_$tam".csv 
+touch plots/"mediasComb_$tam".csv
