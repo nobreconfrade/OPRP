@@ -31,3 +31,7 @@ done
 rm bubble selection comb
 
 # depois pegar as medias e jogar no arquivo resultados.txt
+mkdir -p plots/mediasBubble.csv
+mkdir -p plots/mediasSelection.csv
+mkdir -p plots/mediasComb.csv
+mkdir -p plots/medias.csv
