@@ -27,7 +27,7 @@ void mpi_send_matrix(matrix_t *m)
 }
 
 // Envia um bloco da matriz 'm' para processo 'dest'.
-// Atencao: so funciona para blocos contendo linhas completas.
+// Atencao: so funciona para blocos contendo linha completas.
 void mpi_send_submatrix(matrix_t *m, block_t part, int dest)
 {
    int rows = part.row_end - part.row_start;
@@ -72,105 +72,122 @@ void mpi_recv_submatrix(matrix_t *m, block_t part, int source)
 }
 
 // Funcao executada pelos processos trabalhadores
-void matrix_mult_slave(matrix_t * B, int n)
+void matrix_mult_slave(matrix_t * A, matrix_t * B, matrix_t * C, int n, int linha)
 {
-   matrix_t *A = mpi_recv_matrix(MASTER);
-   //   B = mpi_recv_matrix(MASTER); //sera recebido via broadcast
-   matrix_t *C = matrix_multiply(A, B);
-  //  mpi_send_matrix(C, MASTER);
-   MPI_Gather(C, n*n, MPI_INT,void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
-   matrix_destroy(A);
-   //   matrix_destroy(B);
-   matrix_destroy(C);
-}
-
-// Funcao de multiplicacao executada pelo processo mestre
-matrix_t *matrix_mult_master(matrix_t *A, matrix_t *B, int ntasks)
-{
-
-   int i;
-   block_t *part;
-   matrix_t *C;
+   C = matrix_multiply(A, B);
+// PARAMOS AQUIIIIIIIIIIIII
+   matrix_t *m;
+   int i, j, k, count;
+   double sum;
 
    assert(A->cols == B->rows);
+   m = matrix_create(A->rows, B->cols);
+   count = A->cols;
 
-   C = matrix_create(A->rows, B->cols);
-
-   // Particiona matriz em 'ntasks' partes
-   part = matrix_row_partition(A, ntasks);
-
-   // Envia dados para trabalhadores
-   for (i = 0; i < ntasks-1; i++) {
-      mpi_send_submatrix(A, part[i], i + 1); // scatter
+   for (i = 0; i < m->rows; i++) {
+      for (j = 0; j < m->cols; j++) {
+         sum = 0.0;
+         for (k = 0; k < count; k++) {
+            sum += A->data[i][k] * B->data[k][j];
+         }
+         m->data[i][j] = sum;
+      }
    }
+   return m;
 
-   //   mpi_send_matrix(B);
 
-   // Mestre calcula uma parte do produto
-   matrix_block_multiply(A, B, C, &part[ntasks-1]);
 
-   // Recebe dados dos trabalhadores
-   for (i = 0; i < ntasks-1; i++) {
-      mpi_recv_submatrix(C, part[i], i + 1);
+
    }
-   partition_destroy(part);
-   return C;
+}
+
+
+
+// Funcao de multiplicacao executada pelo processo mestre
+void matrix_mult_master(matrix_t *A, matrix_t *B, matrix_t *C, int linha, int n, int start)
+{
+  for (i = start; i < n; i++) {
+     for (j = 0; j < n; j++) {
+        double sum = 0.0;
+        for (k = 0; k < n; k++) {
+           sum += A->data[i][k] * B->data[k][j];
+        }
+        C->data[i][j] = sum;
+     }
+  }
+  // return C;
 }
 
 int main(int argc, char **argv)
 {
-   int n;
-   int rc;
-   int taskid, ntasks;
-   double start_time, end_time;
+  int n;
+  int rc;
+  int taskid, ntasks;
+  double start_time, end_time;
 
-   MPI_Init(&argc, &argv);
-   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
-   MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
-   if ((argc != 2)) {
-      printf("Uso: mpirun -np <nprocs> %s <ordem da matriz quadrada>\n",
-             argv[0]);
-      MPI_Abort(MPI_COMM_WORLD, rc);
-      exit(1);
-   }
+  if ((argc != 2)) {
+    printf("Uso: mpirun -np <nprocs> %s <ordem da matriz quadrada>\n",
+           argv[0]);
+    MPI_Abort(MPI_COMM_WORLD, rc);
+    exit(1);
+  }
 
-   n = atoi(argv[1]); //mestre e escravos sabem o tamanho da matriz
+  n = atoi(argv[1]); //mestre e escravos sabem o tamanho da matriz
 
-   matrix_t *B = matrix_create(n, n); //mestre e escravos alocam B
+  matrix_t *A_mestre = NULL;
+  matrix_t *C_mestre = NULL;
+  matrix_t *A_escravo  = NULL;
+  matrix_t *C_escravo = NULL;
 
-   if (taskid == MASTER) {  // Codigo executado pelo processo mestre
-      matrix_fill(B, 1.);
-   }
+  matrix_t *B = matrix_create(n, n); //mestre e escravos alocam B
 
-   MPI_Bcast(&m->data[0][0], m->rows * m->cols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  int linha = n / ntasks;
+  int resto = n % ntasks;
 
-   if (taskid == MASTER) {  // Codigo executado pelo processo mestre
+  if (taskid == MASTER) {  // Codigo executado pelo processo mestre
+    A_mestre = matrix_create(n, n);
+    C_mestre = matrix_create(n, n);
+    matrix_randfill(B);
+    matrix_randfill(A_mestre);
+  }
+  A_escravo = matrix_create(linha, n);
+  C_escravo = matrix_create(linha, n);
 
-      // Cria matrizes
-      matrix_t *A = matrix_create(n, n);
-      matrix_randfill(A);
+  MPI_Bcast(&m->data[0][0], m->rows * m->cols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-      matrix_t *C;
+  MPI_Scatter(A_mestre, n  *n, MPI_DOUBLE, A_escravo, linha*n, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
 
-      // Calcula C = A * B, medindo o tempo
+  if (taskid == MASTER) {  // Codigo executado pelo processo mestre
+    if (resto != 0) {
       start_time = MPI_Wtime();
-      C = matrix_mult_master(A, B, ntasks);
+      matrix_mult_master(A_mestre, B, C_mestre, linha, n, n - resto);
       end_time = MPI_Wtime();
+    }
+    // Calcula C = A * B, medindo o tempo
 
-      // Mostra estatisticas da execucao
-      printf("%d %f\n", ntasks, end_time - start_time);
-      fflush(stdout);
+    // Mostra estatisticas da execucao
+    printf("%d %f\n", ntasks, end_time - start_time);
+    fflush(stdout);
 
-      matrix_destroy(A);
-      matrix_destroy(C);
 
-   } else { // Codigo executado pelos processos trabalhadores
-      matrix_mult_slave(B,n);
-   }
+  } else { // Codigo executado pelos processos trabalhadores
+    matrix_mult_slave(B,n);
+  }
 
-   matrix_destroy(B);
+  MPI_Gather(C_mestre, n*n, MPI_INT,void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
 
-   MPI_Finalize();
-   return 0;
+  matrix_print(C_mestre);
+
+  matrix_destroy(B);
+  matrix_destroy(A_escravo);
+  matrix_destroy(A_mestre);
+  matrix_destroy(C_escravo);
+  matrix_destroy(C_mestre);
+
+  MPI_Finalize();
+  return 0;
 }

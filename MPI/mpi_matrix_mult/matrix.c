@@ -4,7 +4,7 @@
 #include "matrix.h"
 
 // Cria matriz de dimensao rows X cols.
-matrix_t *matrix_create(int rows, int cols)
+  matrix_t *matrix_create(int rows, int cols)
 {
    int i;
    double *data;
